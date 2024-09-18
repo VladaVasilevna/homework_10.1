@@ -20,15 +20,27 @@
 
 ## Установка проекта:
 
-     - Склонировать репозиторий:
+- Склонировать репозиторий:
 
        ```bash git clone https://github.com/VladaVasilevna/homework_10.1```
 
-     - Перейти в директорию проекта:
+- Перейти в директорию проекта:
 
        ```bash cd ваш-проект```
 
-     - (Если требуется) Создать и активировать виртуальное окружение:
+- (Если требуется) Создать и активировать виртуальное окружение:
+
+  ```bash python -m venv venv source venv/bin/activate  # или venv\Scripts\activate для Windows```
+
+- Склонировать репозиторий:
+
+       ```bash git clone https://github.com/VladaVasilevna/homework_10.1```
+
+- Перейти в директорию проекта:
+
+       ```bash cd ваш-проект```
+
+- (Если требуется) Создать и активировать виртуальное окружение:
 
        ```bash python -m venv venv source venv/bin/activate  # или venv\Scripts\activate для Windows```
 
