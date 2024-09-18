@@ -32,6 +32,18 @@
 
   ```bash python -m venv venv source venv/bin/activate  # или venv\Scripts\activate для Windows```
 
+- Склонировать репозиторий:
+
+       ```bash git clone https://github.com/VladaVasilevna/homework_10.1```
+
+- Перейти в директорию проекта:
+
+       ```bash cd ваш-проект```
+
+- (Если требуется) Создать и активировать виртуальное окружение:
+
+       ```bash python -m venv venv source venv/bin/activate  # или venv\Scripts\activate для Windows```
+
 ## Установка зависимостей:
 
      ```bash pip install -r requirements.txt```
