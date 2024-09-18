@@ -1,7 +1,7 @@
 from typing import Dict, List
 
 
-def filter_by_state(transactions, state='EXECUTED'):
+def filter_by_state(transactions: List[Dict[str, str]], state: str = 'EXECUTED') -> List[Dict[str, str]]:
     """ Фильтрует список словарей по значению ключа state """
     return [transaction for transaction in transactions if transaction.get('state') == state]
 
@@ -18,7 +18,7 @@ executed_transactions = filter_by_state(transactions)
 canceled_transactions = filter_by_state(transactions, state='CANCELED')
 
 
-def sort_by_date(transactions: List[Dict], descending: bool = True) -> List[Dict]:
+def sort_by_date(transactions: List[Dict[str, str]], descending: bool = True) -> List[Dict[str, str]]:
     """ Сортирует список словарей по дате """
     return sorted(transactions, key=lambda x: x['date'], reverse=descending)
 
