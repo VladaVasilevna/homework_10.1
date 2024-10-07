@@ -22,14 +22,14 @@ def mask_account_card(account_info: str) -> str:
         return "Неизвестный тип карты или счета"
 
 
-account_input = input("Введите тип карты или счета и номер: ")
-result = mask_account_card(account_input)
-print(result)
-
-
 def get_date(date_string: str) -> str:
-    """Функция преобразования строку в дату в формате DD.MM.YYYY"""
+    """Функция преобразования строки в дату в формате DD.MM.YYYY"""
     parts = date_string.split()
+
+    if len(parts) != 3:
+        return "Некорректная дата"
+
+    day, month_str, year = parts
 
     months = {
         "января": "01",
@@ -45,12 +45,21 @@ def get_date(date_string: str) -> str:
         "ноября": "11",
         "декабря": "12",
     }
-    month = months[parts[1]]
 
-    date = f"{parts[0]}.{month}.{parts[2]}"
-    return date
+    if month_str not in months:
+        return "Некорректная дата"
 
+    month = months[month_str]
 
-date_input = input("Введите дату: ")
-formatted_date = get_date(date_input)
-print(formatted_date)
+    # Проверка на корректность дня
+    if not day.isdigit() or int(day) < 1 or int(day) > 31:
+        return "Некорректная дата"
+
+    # Проверка на корректность года
+    if len(year) != 4 or not year.isdigit():
+        return "Некорректная дата"
+
+    # Форматируем день с ведущим нулем
+    day = day.zfill(2)
+
+    return f"{day}.{month}.{year}"
