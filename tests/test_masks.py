@@ -1,5 +1,5 @@
 import pytest
-from your_module import get_mask_card_number  # Замените 'your_module' на имя вашего модуля
+from src.masks import get_mask_card_number
 
 
 def test_masking_correct_number():
