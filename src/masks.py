@@ -9,11 +9,6 @@ def get_mask_card_number(card_number: str) -> str:
     return masked_number
 
 
-card_number = input("Введите номер карты:")
-masked_card_number = get_mask_card_number(card_number)
-print(masked_card_number)
-
-
 def get_mask_account(account_number: str) -> str:
     """Убедимся, что номер счета состоит только из цифр"""
     if not account_number.isdigit() or len(account_number) < 4:
@@ -23,8 +18,3 @@ def get_mask_account(account_number: str) -> str:
     masked_account = f"**{account_number[-4:]}"
 
     return masked_account
-
-
-account_number = input("Введите номер счета:")
-masked_account_number = get_mask_account(account_number)
-print(masked_account_number)
