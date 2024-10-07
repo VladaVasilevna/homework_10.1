@@ -6,9 +6,7 @@ def mask_account_card(account_info: str) -> str:
         if len(account_number) != 16 or not account_number.isdigit():
             return "Некорректный номер карты"
 
-        masked_number = (
-            f"{account_number[:4]} {account_number[4:6]}** **** {account_number[12:]}"
-        )
+        masked_number = f"{account_number[:4]} {account_number[4:6]}** **** {account_number[12:]}"
         return f"{account_type} {masked_number}"
 
     elif account_type == "Счет":  # Для счета
