@@ -2,7 +2,7 @@ from typing import Dict, List
 
 import pytest
 
-from generators.transactions import card_number_generator, filter_by_currency, transaction_descriptions
+from src.generators import card_number_generator, filter_by_currency, transaction_descriptions
 
 
 @pytest.fixture
