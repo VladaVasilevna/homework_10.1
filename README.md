@@ -54,8 +54,6 @@
 
      ```bash pip install -r requirements.txt```
 
-
-
 ## Как запустить проект:
 
      ```bash python manage.py runserver```
