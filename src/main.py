@@ -3,6 +3,15 @@ from operations import count_transactions_by_type, filter_operations
 from utils import load_transactions
 
 
+def get_user_input(prompt: str, valid_options: list) -> str:
+    """Получает ввод пользователя с проверкой на корректность."""
+    while True:
+        user_input = input(prompt).strip().lower()
+        if user_input in valid_options:
+            return user_input
+        print(f"Некорректный ввод. Пожалуйста, выберите один из: {', '.join(valid_options)}")
+
+
 def main():
     print("Привет! Добро пожаловать в программу работы с банковскими транзакциями.")
     print("Выберите необходимый пункт меню:")
@@ -10,7 +19,7 @@ def main():
     print("2. Получить информацию о транзакциях из CSV-файла")
     print("3. Получить информацию о транзакциях из XLSX-файла")
 
-    choice = input("Пользователь: ")
+    choice = get_user_input("Пользователь: ", ["1", "2", "3"])
 
     if choice == "1":
         file_path = "data/operations.json"
@@ -24,8 +33,9 @@ def main():
         file_path = "data/transactions_excel.xlsx"
         transactions = load_transactions_from_excel(file_path)
         file_type = "XLSX"
-    else:
-        print("Некорректный выбор. Завершение программы.")
+
+    if not transactions:
+        print("Не удалось загрузить транзакции.")
         return
 
     print(f"Для обработки выбран {file_type}-файл.")
@@ -33,42 +43,33 @@ def main():
     # Фильтрация по статусу
     statuses = ["EXECUTED", "CANCELED", "PENDING"]
 
-    while True:
-        status_input = input(
-            "Введите статус, по которому необходимо выполнить фильтрацию. "
-            f"Доступные для фильтровки статусы: {', '.join(statuses)}\nПользователь: "
-        )
+    status_input = get_user_input(
+        f"Введите статус, по которому необходимо выполнить фильтрацию. "
+        f"Доступные для фильтровки статусы: {', '.join(statuses)}\nПользователь: ",
+        statuses,
+    )
 
-        status_input_upper = status_input.upper()
-
-        if status_input_upper in statuses:
-            print(f'Операции отфильтрованы по статусу "{status_input_upper}".')
-            filtered_transactions = filter_operations(transactions, status_input_upper)
-            break
-        else:
-            print(f'Статус операции "{status_input}" недоступен.')
+    print(f'Операции отфильтрованы по статусу "{status_input}".')
+    filtered_transactions = filter_operations(transactions, status_input)
 
     # Сортировка операций
-    sort_by_date = input("Отсортировать операции по дате? Да/Нет\nПользователь: ").strip().lower()
+    sort_by_date = get_user_input("Отсортировать операции по дате? (да/нет)\nПользователь: ", ["да", "нет"])
 
     if sort_by_date == "да":
-        order = input("Отсортировать по возрастанию или по убыванию?\nПользователь: ").strip().lower()
-        if order == "по возрастанию":
-            filtered_transactions.sort(key=lambda x: x.get("date"))
-        elif order == "по убыванию":
-            filtered_transactions.sort(key=lambda x: x.get("date"), reverse=True)
+        order = get_user_input(
+            "Отсортировать по возрастанию или по убыванию?\nПользователь: ", ["по возрастанию", "по убыванию"]
+        )
+        filtered_transactions.sort(key=lambda x: x.get("date"), reverse=(order == "по убыванию"))
 
     # Фильтрация по валюте
-    only_rub = input("Выводить только рублевые транзакции? Да/Нет\nПользователь: ").strip().lower()
+    only_rub = get_user_input("Выводить только рублевые транзакции? (да/нет)\nПользователь: ", ["да", "нет"])
 
     if only_rub == "да":
         filtered_transactions = [t for t in filtered_transactions if t.get("currency") == "RUB"]
 
     # Фильтрация по слову в описании
-    filter_by_description = (
-        input("Отфильтровать список транзакций по определенному слову в описании? Да/Нет\nПользователь: ")
-        .strip()
-        .lower()
+    filter_by_description = get_user_input(
+        "Отфильтровать список транзакций по определенному слову в описании? (да/нет)\nПользователь: ", ["да", "нет"]
     )
 
     if filter_by_description == "да":
