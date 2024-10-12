@@ -1,8 +1,17 @@
+import logging
 from typing import List, Tuple
 
 import pytest
 
 from src.masks import get_mask_account, get_mask_card_number
+
+# Настройка логирования
+logging.basicConfig(
+    level=logging.DEBUG,
+    filename='logs/test_masks.log',  # Путь к файлу логов
+    filemode='w',                     # Перезапись файла при каждом запуске
+    format='%(asctime)s - %(levelname)s - %(message)s'
+)
 
 
 # Фикстура для корректных номеров карт
@@ -20,7 +29,9 @@ def valid_card_numbers() -> List[Tuple[str, str]]:
 )
 def test_masking_correct_number_card(card_number: str, expected: str) -> None:
     """Тестирование правильности маскирования номера карты."""
-    assert get_mask_card_number(card_number) == expected
+    result = get_mask_card_number(card_number)
+    logging.info(f"Тестирование корректного номера карты: {card_number} -> {result}")
+    assert result == expected
 
 
 # Фикстура для некорректных номеров карт
@@ -40,38 +51,46 @@ def invalid_card_numbers() -> List[Tuple[str, str]]:
 def test_masking_correct_number(valid_card_numbers: List[Tuple[str, str]]) -> None:
     """Тестирование правильности маскирования номера карты."""
     for card_number, expected in valid_card_numbers:
-        assert get_mask_card_number(card_number) == expected
+        result = get_mask_card_number(card_number)
+        logging.info(f"Тестирование корректного номера карты: {card_number} -> {result}")
+        assert result == expected
 
 
 def test_masking_edge_cases(invalid_card_numbers: List[Tuple[str, str]]) -> None:
     """Тестирование работы функции на различных входных форматах номеров карт."""
     for card_number, expected in invalid_card_numbers:
-        assert get_mask_card_number(card_number) == expected
+        result = get_mask_card_number(card_number)
+        logging.warning(f"Тестирование некорректного номера карты: {card_number} -> {result}")
+        assert result == expected
 
 
 def test_empty_input() -> None:
     """Тестирование, что функция корректно обрабатывает входные строки, где отсутствует номер карты."""
-    assert get_mask_card_number("") == "Номер карты должен содержать 16 цифр."
+    result = get_mask_card_number("")
+    logging.warning("Тестирование пустого ввода для номера карты.")
+    assert result == "Номер карты должен содержать 16 цифр."
 
 
 def test_non_numeric_input() -> None:
     """Тестирование, что функция корректно обрабатывает нечисловые входные строки."""
-    assert get_mask_card_number("abcdefghabcdefgh") == "Номер карты должен содержать 16 цифр."
+    result = get_mask_card_number("abcdefghabcdefgh")
+    logging.warning("Тестирование нечислового ввода для номера карты.")
+    assert result == "Номер карты должен содержать 16 цифр."
 
 
 @pytest.fixture
 def account_numbers() -> List[str]:
     return [
-        "123456",  # Ожидается: **3456
-        "9876543210",  # Ожидается: **3210
-        "00001234",  # Ожидается: **1234
-        "1234",  # Ожидается: **1234
-        "123",  # Ожидается: ошибка
-        "12",  # Ожидается: ошибка
-        "1",  # Ожидается: ошибка
-        "1234abcd",  # Ожидается: ошибка
-        "abcd",  # Ожидается: ошибка
-        "",  # Ожидается: ошибка
+        "123456",          # Ожидается: **3456
+        "9876543210",     # Ожидается: **3210
+        "00001234",       # Ожидается: **1234
+        "1234",           # Ожидается: **1234
+        "123",            # Ожидается: ошибка
+        "12",             # Ожидается: ошибка
+        "1",              # Ожидается: ошибка
+        "1234abcd",       # Ожидается: ошибка
+        "abcd",           # Ожидается: ошибка
+        "",               # Ожидается: ошибка
     ]
 
 
@@ -91,7 +110,9 @@ def test_masking_correct_account(account_numbers: List[str]) -> None:
     ]
 
     for account_number, expected in zip(account_numbers, expected_results):
-        assert get_mask_account(account_number) == expected
+        result = get_mask_account(account_number)
+        logging.info(f"Тестирование номера счета: {account_number} -> {result}")
+        assert result == expected
 
 
 # Параметризованные тесты для проверки некорректных номеров счетов
@@ -108,4 +129,6 @@ def test_masking_correct_account(account_numbers: List[str]) -> None:
 )
 def test_masking_edge_cases_accounts(account_number: str, expected: str) -> None:
     """Тестирование работы функции на различных входных форматах номеров счетов."""
-    assert get_mask_account(account_number) == expected
+    result = get_mask_account(account_number)
+    logging.warning(f"Тестирование некорректного номера счета: {account_number} -> {result}")
+    assert result == expected
