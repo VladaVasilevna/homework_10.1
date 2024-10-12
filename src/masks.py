@@ -2,18 +2,18 @@ import logging
 import os
 
 # Создаем директорию logs, если она не существует
-os.makedirs('logs', exist_ok=True)
+os.makedirs("logs", exist_ok=True)
 
 # Настройка логгера для модуля masks
-logger = logging.getLogger('masks')
+logger = logging.getLogger("masks")
 logger.setLevel(logging.DEBUG)
 
 # Создаем обработчик для записи логов в файл с указанием кодировки
-file_handler = logging.FileHandler('logs/masks.log', mode='w', encoding='utf-8')
+file_handler = logging.FileHandler("logs/masks.log", mode="w", encoding="utf-8")
 file_handler.setLevel(logging.DEBUG)
 
 # Формат записи логов
-file_formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+file_formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 file_handler.setFormatter(file_formatter)
 
 # Добавляем обработчик к логгеру
