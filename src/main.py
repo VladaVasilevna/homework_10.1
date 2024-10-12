@@ -1,5 +1,5 @@
 from data_loader import load_transactions_from_csv, load_transactions_from_excel
-from operations import filter_operations
+from operations import count_transactions_by_type, filter_operations
 from utils import load_transactions
 
 
@@ -75,6 +75,16 @@ def main():
         search_term = input("Введите слово для фильтрации:\nПользователь: ")
         filtered_transactions = filter_operations(filtered_transactions, search_term)
 
+    # Подсчет операций по категориям (если необходимо)
+    categories = [
+        "Оплата за интернет",
+        "Перевод",
+        "Покупка",
+        "Оплата за телефон",
+    ]
+
+    transaction_counts = count_transactions_by_type(filtered_transactions, categories)
+
     # Вывод итогового списка транзакций
     print("\nРаспечатываю итоговый список транзакций...")
 
@@ -90,6 +100,11 @@ def main():
             currency = transaction.get("currency", "неизвестная валюта")
 
             print(f"{date} {description}\nСумма: {amount} {currency}\n")
+
+        # Вывод количества операций по категориям
+        print("\nКоличество операций по категориям:")
+        for category, count in transaction_counts.items():
+            print(f"{category}: {count}")
 
 
 if __name__ == "__main__":
