@@ -2,18 +2,18 @@ import logging
 import os
 
 # Создаем директорию logs, если она не существует
-os.makedirs('logs', exist_ok=True)
+os.makedirs("logs", exist_ok=True)
 
 # Настройка логгера
-logger = logging.getLogger('utils')
+logger = logging.getLogger("utils")
 logger.setLevel(logging.DEBUG)
 
 # Создаем обработчик для записи логов в файл с указанием кодировки
-file_handler = logging.FileHandler('logs/utils.log', mode='w', encoding='utf-8')
+file_handler = logging.FileHandler("logs/utils.log", mode="w", encoding="utf-8")
 file_handler.setLevel(logging.DEBUG)
 
 # Формат записи логов
-formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 file_handler.setFormatter(formatter)
 
 # Добавляем обработчик к логгеру

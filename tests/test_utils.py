@@ -8,9 +8,9 @@ from src.utils import load_transactions
 # Настройка логирования
 logging.basicConfig(
     level=logging.DEBUG,
-    filename='logs/test_load_transactions.log',  # Путь к файлу логов
-    filemode='w',                                 # Перезапись файла при каждом запуске
-    format='%(asctime)s - %(levelname)s - %(message)s'
+    filename="logs/test_load_transactions.log",  # Путь к файлу логов
+    filemode="w",  # Перезапись файла при каждом запуске
+    format="%(asctime)s - %(levelname)s - %(message)s",
 )
 
 
