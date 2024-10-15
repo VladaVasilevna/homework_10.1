@@ -1,15 +1,37 @@
-from data_loader import load_transactions_from_csv, load_transactions_from_excel
-from operations import count_transactions_by_type, filter_operations
-from utils import load_transactions
+import logging
+
+from src.data_loader import load_transactions_from_csv, load_transactions_from_excel
+from src.operations import count_transactions_by_type, filter_operations
+from src.utils import load_transactions, search_transactions
+
+# Настройка логирования
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 
 def get_user_input(prompt: str, valid_options: list) -> str:
     """Получает ввод пользователя с проверкой на корректность."""
-    while True:
+    attempts = 3  # Максимальное количество попыток
+    while attempts > 0:
         user_input = input(prompt).strip().lower()
         if user_input in valid_options:
             return user_input
-        print(f"Некорректный ввод. Пожалуйста, выберите один из: {', '.join(valid_options)}")
+        attempts -= 1
+        print(
+            f"Некорректный ввод. Осталось попыток: {attempts}. "
+            f"Пожалуйста, выберите один из: {', '.join(valid_options)}"
+        )
+
+    raise ValueError("Превышено максимальное количество попыток ввода.")
+
+
+def get_status_input(prompt: str, valid_statuses: list) -> str:
+    """Получает статус от пользователя с проверкой на корректность."""
+    while True:
+        status_input = input(prompt).strip().upper()  # Приводим к верхнему регистру для проверки
+        if status_input in valid_statuses:
+            return status_input
+        print(f'Статус операции "{status_input}" недоступен.')
 
 
 def main():
@@ -43,14 +65,26 @@ def main():
     # Фильтрация по статусу
     statuses = ["EXECUTED", "CANCELED", "PENDING"]
 
-    status_input = get_user_input(
-        f"Введите статус, по которому необходимо выполнить фильтрацию. "
-        f"Доступные для фильтровки статусы: {', '.join(statuses)}\nПользователь: ",
-        statuses,
+    status_prompt = (
+        f"Введите статус, по которому необходимо выполнить фильтрацию.\n"
+        f"Доступные для фильтровки статусы: {', '.join(statuses)}\n"
+        f"Пользователь: "
     )
+
+    status_input = get_status_input(status_prompt, statuses)
 
     print(f'Операции отфильтрованы по статусу "{status_input}".')
     filtered_transactions = filter_operations(transactions, status_input)
+
+    # Подсчет операций по категориям (если необходимо)
+    categories = [
+        "Оплата за интернет",
+        "Перевод",
+        "Покупка",
+        "Оплата за телефон",
+    ]
+
+    transaction_counts = count_transactions_by_type(filtered_transactions, categories)
 
     # Сортировка операций
     sort_by_date = get_user_input("Отсортировать операции по дате? (да/нет)\nПользователь: ", ["да", "нет"])
@@ -69,22 +103,12 @@ def main():
 
     # Фильтрация по слову в описании
     filter_by_description = get_user_input(
-        "Отфильтровать список транзакций по определенному слову в описании? (да/нет)\nПользователь: ", ["да", "нет"]
+        "Отфильтровать список транзакций по определенному слову в описании? (да/нет)\n" "Пользователь: ", ["да", "нет"]
     )
 
     if filter_by_description == "да":
         search_term = input("Введите слово для фильтрации:\nПользователь: ")
-        filtered_transactions = filter_operations(filtered_transactions, search_term)
-
-    # Подсчет операций по категориям (если необходимо)
-    categories = [
-        "Оплата за интернет",
-        "Перевод",
-        "Покупка",
-        "Оплата за телефон",
-    ]
-
-    transaction_counts = count_transactions_by_type(filtered_transactions, categories)
+        filtered_transactions = search_transactions(filtered_transactions, search_term)
 
     # Вывод итогового списка транзакций
     print("\nРаспечатываю итоговый список транзакций...")
@@ -95,17 +119,25 @@ def main():
         print(f"Всего банковских операций в выборке: {len(filtered_transactions)}")
 
         for transaction in filtered_transactions:
-            date = transaction.get("date", "Дата не указана")
-            description = transaction.get("description", "Описание не указано")
-            amount = transaction.get("amount", 0)
-            currency = transaction.get("currency", "неизвестная валюта")
+            if isinstance(transaction, dict):  # Проверка типа данных
+                date = transaction.get("date", "Дата не указана")
+                description = transaction.get("description", "Описание не указано")
+                amount = transaction.get("amount", 0)
+                currency = transaction.get("currency", "неизвестная валюта")
 
-            print(f"{date} {description}\nСумма: {amount} {currency}\n")
+                print(f"{date} {description}\nСумма: {amount} {currency}\n")
+            else:
+                logger.error(f"Ошибка: ожидался словарь транзакции, но получен {type(transaction).__name__}.")
 
         # Вывод количества операций по категориям
         print("\nКоличество операций по категориям:")
-        for category, count in transaction_counts.items():
-            print(f"{category}: {count}")
+
+        # Убедитесь, что transaction_counts — это словарь перед использованием .items()
+        if isinstance(transaction_counts, dict):
+            for category, count in transaction_counts.items():
+                print(f"{category}: {count}")
+        else:
+            logger.error("Ошибка: ожидался словарь для подсчета операций по категориям.")
 
 
 if __name__ == "__main__":
