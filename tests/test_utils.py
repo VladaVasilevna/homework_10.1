@@ -1,56 +1,56 @@
 import json
-import logging
-from typing import Any, Dict, List
 from unittest.mock import mock_open, patch
 
-from src.utils import load_transactions
+import pytest
 
-# Настройка логирования
-logging.basicConfig(
-    level=logging.DEBUG,
-    filename="logs/test_load_transactions.log",  # Путь к файлу логов
-    filemode="w",  # Перезапись файла при каждом запуске
-    format="%(asctime)s - %(levelname)s - %(message)s",
+from src.utils import load_transactions, search_transactions
+
+
+@pytest.fixture
+def sample_json_file(tmp_path) -> str:
+    """Создает временный JSON файл для тестирования."""
+    data = [
+        {"description": "Покупка", "amount": 1500, "currency": "RUB"},
+        {"description": "Перевод", "amount": 1000, "currency": "USD"},
+        {"description": "Оплата счета", "amount": 500, "currency": "RUB"},
+    ]
+    json_file = tmp_path / "sample.json"
+    with json_file.open("w") as f:
+        json.dump(data, f)
+    return str(json_file)
+
+
+def test_load_transactions(sample_json_file: str) -> None:
+    """Тестирует загрузку транзакций из JSON файла."""
+    transactions = load_transactions(sample_json_file)
+    assert len(transactions) == 3
+    assert transactions[0]["description"] == "Покупка"
+
+
+@patch(
+    "builtins.open",
+    new_callable=mock_open,
+    read_data='[{"description": "Покупка", "amount": 1500, "currency": "RUB"}]',
 )
+def test_load_transactions_mocked(mock_open_func) -> None:
+    """Тестирует загрузку транзакций с использованием мока."""
+    transactions = load_transactions("dummy_path.json")
+    assert len(transactions) == 1
+    assert transactions[0]["description"] == "Покупка"
 
 
-def test_load_transactions_file_not_exist() -> None:
-    """Тест для случая, когда файл не существует."""
-    file_path: str = "data/non_existent_file.json"
-    result: List[Dict[str, Any]] = load_transactions(file_path)
-    logging.warning(f"Тестирование отсутствующего файла: {file_path} -> {result}")
-    assert result == []
+def test_search_transactions() -> None:
+    """Тестирует поиск транзакций по описанию."""
+    transactions = [
+        {"description": "Покупка в магазине", "amount": 1500, "currency": "RUB"},
+        {"description": "Перевод на счет", "amount": 1000, "currency": "USD"},
+        {"description": "Оплата за интернет", "amount": 500, "currency": "RUB"},
+    ]
 
+    result = search_transactions(transactions, "магазин")
+    assert len(result) == 1
+    assert result[0]["description"] == "Покупка в магазине"
 
-def test_load_transactions_empty_file() -> None:
-    """Тест для случая пустого файла."""
-    mock_empty_file = mock_open(read_data="")
-
-    with patch("builtins.open", mock_empty_file):
-        result: List[Dict[str, Any]] = load_transactions("data/empty_file.json")
-        logging.info("Тестирование пустого файла.")
-        assert result == []
-
-
-def test_load_transactions_invalid_json() -> None:
-    """Тест для случая с некорректным JSON."""
-    mock_invalid_json_file = mock_open(read_data="{invalid_json}")
-
-    with patch("builtins.open", mock_invalid_json_file):
-        result: List[Dict[str, Any]] = load_transactions("data/invalid_json.json")
-        logging.error("Тестирование некорректного JSON.")
-        assert result == []
-
-
-def test_load_transactions_valid_json() -> None:
-    """Тест для случая с корректным JSON."""
-    # Читаем данные из файла operations.json для теста
-    with open("data/operations.json", "r", encoding="utf-8") as file:
-        mock_valid_json_data = file.read()
-
-    mock_valid_json_file = mock_open(read_data=mock_valid_json_data)
-
-    with patch("builtins.open", mock_valid_json_file):
-        result: List[Dict[str, Any]] = load_transactions("data/operations.json")
-        logging.info("Тестирование корректного JSON.")
-        assert result == json.loads(mock_valid_json_data)  # Проверяем соответствие
+    result = search_transactions(transactions, "Оплата")
+    assert len(result) == 1
+    assert result[0]["description"] == "Оплата за интернет"

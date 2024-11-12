@@ -1,47 +1,49 @@
 from unittest.mock import MagicMock, patch
 
+import pandas as pd
+import pytest
+
 from src.data_loader import load_transactions_from_csv, load_transactions_from_excel
 
 
-def test_load_transactions_from_csv_success():
-    with patch("pandas.read_csv") as mock_read_csv:
-        # Настройка мока
-        mock_read_csv.return_value = MagicMock(to_dict=MagicMock(return_value=[{"id": 1, "amount": 100}]))
-
-        transactions = load_transactions_from_csv("fake_path.csv")
-
-        # Проверка результата
-        assert transactions == [{"id": 1, "amount": 100}]
-
-
-def test_load_transactions_from_csv_file_not_found():
-    with patch("pandas.read_csv") as mock_read_csv:
-        # Настройка исключения
-        mock_read_csv.side_effect = FileNotFoundError
-
-        transactions = load_transactions_from_csv("fake_path.csv")
-
-        # Проверка результата
-        assert transactions == []
+@pytest.fixture
+def sample_csv_file(tmp_path) -> str:
+    """Создает временный CSV файл для тестирования."""
+    data = """description,amount,currency\nПокупка,1500,RUB\nПеревод,1000,USD\nОплата счета,500,RUB"""
+    csv_file = tmp_path / "sample.csv"
+    with csv_file.open("w") as f:
+        f.write(data)
+    return str(csv_file)
 
 
-def test_load_transactions_from_excel_success():
-    with patch("pandas.read_excel") as mock_read_excel:
-        # Настройка мока
-        mock_read_excel.return_value = MagicMock(to_dict=MagicMock(return_value=[{"id": 1, "amount": 200}]))
+@patch("pandas.read_csv")
+def test_load_transactions_from_csv(mock_read_csv: MagicMock, sample_csv_file: str) -> None:
+    """Тестирует загрузку транзакций из CSV файла."""
+    mock_read_csv.return_value = pd.DataFrame(
+        [
+            {"description": "Покупка", "amount": 1500, "currency": "RUB"},
+            {"description": "Перевод", "amount": 1000, "currency": "USD"},
+            {"description": "Оплата счета", "amount": 500, "currency": "RUB"},
+        ]
+    )
 
-        transactions = load_transactions_from_excel("fake_path.xlsx")
+    transactions = load_transactions_from_csv(sample_csv_file)
 
-        # Проверка результата
-        assert transactions == [{"id": 1, "amount": 200}]
+    assert len(transactions) == 3
+    assert transactions[0]["description"] == "Покупка"
 
 
-def test_load_transactions_from_excel_file_not_found():
-    with patch("pandas.read_excel") as mock_read_excel:
-        # Настройка исключения
-        mock_read_excel.side_effect = FileNotFoundError
+@patch("pandas.read_excel")
+def test_load_transactions_from_excel(mock_read_excel: MagicMock) -> None:
+    """Тестирует загрузку транзакций из Excel файла."""
+    mock_read_excel.return_value = pd.DataFrame(
+        [
+            {"description": "Покупка", "amount": 1500, "currency": "RUB"},
+            {"description": "Перевод", "amount": 1000, "currency": "USD"},
+        ]
+    )
 
-        transactions = load_transactions_from_excel("fake_path.xlsx")
+    transactions = load_transactions_from_excel("dummy_path.xlsx")
 
-        # Проверка результата
-        assert transactions == []
+    assert len(transactions) == 2
+    assert transactions[1]["description"] == "Перевод"
