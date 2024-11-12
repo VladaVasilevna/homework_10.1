@@ -4,6 +4,7 @@ from src.data_loader import load_transactions_from_csv, load_transactions_from_e
 from src.operations import filter_transactions, count_operations_by_category
 from src.utils import load_transactions, search_transactions
 
+
 # Настройка логирования
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
