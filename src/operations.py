@@ -6,8 +6,9 @@ from typing import Any, Dict, List
 def filter_transactions(transactions: List[Dict[str, Any]], search_string: str) -> List[Dict[str, Any]]:
     """Фильтрует транзакции по строке в описании с использованием регулярных выражений."""
     pattern = re.compile(re.escape(search_string), re.IGNORECASE)  # Регистронезависимый поиск
-    filtered_transactions = [transaction for transaction in transactions if
-                             pattern.search(transaction.get("description", ""))]
+    filtered_transactions = [
+        transaction for transaction in transactions if pattern.search(transaction.get("description", ""))
+    ]
 
     return filtered_transactions
 

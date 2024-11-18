@@ -31,7 +31,7 @@ def load_transactions(file_path: str) -> List[Dict[str, Any]]:
 def filter_transactions_by_status(transactions: List[Dict[str, Any]], status: str) -> List[Dict[str, Any]]:
     """Фильтрует транзакции по статусу."""
     filtered = [transaction for transaction in transactions if transaction.get("state", "").lower() == status.lower()]
-    logger.info(f"Найдено {len(filtered)} транзакций со статусом \"{status}\".")
+    logger.info(f'Найдено {len(filtered)} транзакций со статусом "{status}".')
     return filtered
 
 
@@ -48,17 +48,17 @@ def print_transactions(transactions: List[Dict[str, Any]]) -> None:
         return
 
     for transaction in transactions:
-        date = transaction['date']
-        description = transaction['description']
-        amount = transaction['operationAmount']['amount']
-        currency = transaction['operationAmount']['currency']['name']
+        date = transaction["date"]
+        description = transaction["description"]
+        amount = transaction["operationAmount"]["amount"]
+        currency = transaction["operationAmount"]["currency"]["name"]
 
         print(f"{date}: {description} - {amount} {currency}")
 
 
 # Пример использования функций
 if __name__ == "__main__":
-    file_path = '../data/operations.json'
+    file_path = "../data/operations.json"
 
     # Загружаем транзакции
     transactions = load_transactions(file_path)
@@ -67,7 +67,7 @@ if __name__ == "__main__":
     print(f"Загружено {len(transactions)} транзакций.")
 
     # Фильтруем по статусу EXECUTED
-    executed_transactions = filter_transactions_by_status(transactions, 'EXECUTED')
+    executed_transactions = filter_transactions_by_status(transactions, "EXECUTED")
 
     # Выводим все выполненные транзакции
     print(f"Найдено {len(executed_transactions)} выполненных транзакций:")
