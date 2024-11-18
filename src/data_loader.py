@@ -9,7 +9,7 @@ from src.logger import logger  # Импортируем логгер
 def load_transactions_from_csv(file_path: str) -> List[Dict[str, Any]]:
     """Загружает данные о финансовых транзакциях из CSV-файла."""
     try:
-        df = pd.read_csv(file_path)
+        df = pd.read_csv(file_path, delimiter=';')
         transactions = df.to_dict(orient="records")
         return transactions
     except FileNotFoundError:

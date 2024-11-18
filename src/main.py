@@ -25,13 +25,13 @@ def get_user_file_choice():
 
         if user_input == "1":
             print("Для обработки выбран JSON-файл.")
-            return "../data/operations.json", load_transactions
+            return "../data/operations.json", load_transactions, True  # Добавляем True для JSON
         elif user_input == "2":
             print("Для обработки выбран CSV-файл.")
-            return "../data/transactions.csv", load_transactions_from_csv
+            return "../data/transactions.csv", load_transactions_from_csv, False  # Добавляем False для CSV
         elif user_input == "3":
             print("Для обработки выбран XLSX-файл.")
-            return "../data/transactions_excel.xlsx", load_transactions_from_excel
+            return "../data/transactions_excel.xlsx", load_transactions_from_excel, False  # Добавляем False для XLSX
         else:
             print("Неверный выбор. Пожалуйста, выберите пункт меню от 1 до 3.")
 
@@ -47,7 +47,10 @@ def filter_by_status(transactions):
         ).lower()
 
         if status_input in statuses:
-            filtered_transactions = [t for t in transactions if t.get("state", "").lower() == status_input]
+            filtered_transactions = [
+                t for t in transactions
+                if isinstance(t.get("state"), str) and t.get("state").lower() == status_input
+            ]
             print(f'Операции отфильтрованы по статусу "{status_input.upper()}".')
             if not filtered_transactions:
                 print("\nНе найдено ни одной транзакции, подходящей под ваши условия фильтрации.")
@@ -80,7 +83,9 @@ def apply_additional_filters(filtered_transactions):
     # Применение фильтров
     if only_rubles:
         filtered_transactions = [
-            t for t in filtered_transactions if t.get("operationAmount", {}).get("currency", {}).get("code") == "RUB"
+            t for t in filtered_transactions
+            if (t.get("operationAmount", {}).get("currency", {}).get("code") == "RUB" or
+                t.get("currency_code") == "RUB")  # Проверка на RUB как для JSON, так и для CSV
         ]
 
     if filter_description and search_string:
@@ -93,7 +98,7 @@ def apply_additional_filters(filtered_transactions):
     return filtered_transactions
 
 
-def display_transactions(filtered_transactions):
+def display_transactions(filtered_transactions, is_json=True):
     """Выводит отфильтрованные транзакции в нужном формате."""
     print("\nРаспечатываю итоговый список транзакций...")
     print(f"Всего банковских операций в выборке: {len(filtered_transactions)}\n")
@@ -102,14 +107,26 @@ def display_transactions(filtered_transactions):
         date_str = transaction.get("date", "Неизвестная дата")
 
         try:
-            date_obj = datetime.fromisoformat(date_str)
+            date_obj = datetime.fromisoformat(date_str[:-1])  # Убираем 'Z' в конце строки даты
             formatted_date = date_obj.strftime("%d.%m.%Y")
         except ValueError:
             formatted_date = "Неизвестная дата"
 
         description = transaction.get("description", "Нет описания")
-        amount = transaction.get("operationAmount", {}).get("amount", "Неизвестная сумма")
-        currency = transaction.get("operationAmount", {}).get("currency", {}).get("code", "Неизвестная валюта")
+
+        # Извлечение суммы и валюты в зависимости от формата файла
+        if is_json:
+            amount = transaction.get("operationAmount", {}).get("amount", "Неизвестная сумма")
+            currency = transaction.get("operationAmount", {}).get("currency", {}).get("code", "Неизвестная валюта")
+        else:  # Для CSV и XLSX
+            amount = transaction.get("amount", "Неизвестная сумма")
+            currency = transaction.get("currency_code", "Неизвестная валюта")
+
+        # Преобразование amount к строке для вывода
+        if isinstance(amount, float):
+            amount = f"{amount:.2f}"  # Форматируем до двух знаков после запятой
+        elif isinstance(amount, int):
+            amount = str(amount)  # Преобразуем целое число в строку
 
         from_account_raw = transaction.get("from", "")
         to_account_raw = transaction.get("to", "")
@@ -140,7 +157,7 @@ def main():
     print("Привет! Добро пожаловать в программу работы с банковскими транзакциями.")
 
     # Меню выбора файла и загрузка данных
-    file_path, load_function = get_user_file_choice()
+    file_path, load_function, is_json = get_user_file_choice()
 
     try:
         transactions = load_function(file_path)
@@ -157,7 +174,7 @@ def main():
 
             # Вывод результата
             if filtered_transactions:
-                display_transactions(filtered_transactions)
+                display_transactions(filtered_transactions, is_json)
             else:
                 print("\nНе найдено ни одной транзакции, подходящей под ваши условия фильтрации.")
 
