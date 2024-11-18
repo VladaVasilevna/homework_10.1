@@ -25,13 +25,13 @@ def get_user_file_choice():
 
         if user_input == "1":
             print("Для обработки выбран JSON-файл.")
-            return "../data/operations.json", load_transactions, True  # Добавляем True для JSON
+            return "../data/operations.json", load_transactions, True
         elif user_input == "2":
             print("Для обработки выбран CSV-файл.")
-            return "../data/transactions.csv", load_transactions_from_csv, False  # Добавляем False для CSV
+            return "../data/transactions.csv", load_transactions_from_csv, False
         elif user_input == "3":
             print("Для обработки выбран XLSX-файл.")
-            return "../data/transactions_excel.xlsx", load_transactions_from_excel, False  # Добавляем False для XLSX
+            return "../data/transactions_excel.xlsx", load_transactions_from_excel, False
         else:
             print("Неверный выбор. Пожалуйста, выберите пункт меню от 1 до 3.")
 
@@ -57,7 +57,7 @@ def filter_by_status(transactions):
                 return []
             else:
                 print(f'Найдено {len(filtered_transactions)} транзакций со статусом "{status_input.upper()}".')
-                return filtered_transactions  # Возвращаем отфильтрованные транзакции
+                return filtered_transactions
         else:
             print(f'Статус операции "{status_input}" недоступен.')
 
@@ -85,7 +85,7 @@ def apply_additional_filters(filtered_transactions):
         filtered_transactions = [
             t for t in filtered_transactions
             if (t.get("operationAmount", {}).get("currency", {}).get("code") == "RUB" or
-                t.get("currency_code") == "RUB")  # Проверка на RUB как для JSON, так и для CSV
+                t.get("currency_code") == "RUB")
         ]
 
     if filter_description and search_string:
@@ -107,7 +107,7 @@ def display_transactions(filtered_transactions, is_json=True):
         date_str = transaction.get("date", "Неизвестная дата")
 
         try:
-            date_obj = datetime.fromisoformat(date_str[:-1])  # Убираем 'Z' в конце строки даты
+            date_obj = datetime.fromisoformat(date_str[:-1])
             formatted_date = date_obj.strftime("%d.%m.%Y")
         except ValueError:
             formatted_date = "Неизвестная дата"
@@ -121,12 +121,6 @@ def display_transactions(filtered_transactions, is_json=True):
         else:  # Для CSV и XLSX
             amount = transaction.get("amount", "Неизвестная сумма")
             currency = transaction.get("currency_code", "Неизвестная валюта")
-
-        # Преобразование amount к строке для вывода
-        if isinstance(amount, float):
-            amount = f"{amount:.2f}"  # Форматируем до двух знаков после запятой
-        elif isinstance(amount, int):
-            amount = str(amount)  # Преобразуем целое число в строку
 
         from_account_raw = transaction.get("from", "")
         to_account_raw = transaction.get("to", "")
