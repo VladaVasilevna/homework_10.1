@@ -48,8 +48,7 @@ def filter_by_status(transactions):
 
         if status_input in statuses:
             filtered_transactions = [
-                t for t in transactions
-                if isinstance(t.get("state"), str) and t.get("state").lower() == status_input
+                t for t in transactions if isinstance(t.get("state"), str) and t.get("state").lower() == status_input
             ]
             print(f'Операции отфильтрованы по статусу "{status_input.upper()}".')
             if not filtered_transactions:
@@ -83,9 +82,12 @@ def apply_additional_filters(filtered_transactions):
     # Применение фильтров
     if only_rubles:
         filtered_transactions = [
-            t for t in filtered_transactions
-            if (t.get("operationAmount", {}).get("currency", {}).get("code") == "RUB" or
-                t.get("currency_code") == "RUB")
+            t
+            for t in filtered_transactions
+            if (
+                t.get("operationAmount", {}).get("currency", {}).get("code") == "RUB"
+                or t.get("currency_code") == "RUB"
+            )
         ]
 
     if filter_description and search_string:

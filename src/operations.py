@@ -15,7 +15,10 @@ def filter_transactions(transactions: List[Dict[str, Any]], search_string: str) 
 
 def count_operations_by_category(transactions: List[Dict[str, Any]], categories: List[str]) -> Dict[str, int]:
     """Подсчитывает количество операций по категориям."""
-    category_counter = Counter()  # Инициализируем счетчик категорий
+    category_counter: Counter[str] = Counter()  # Инициализируем счетчик категорий с типом аннотацией
+
+    for category in categories:
+        category_counter[category] = 0  # Инициализируем счетчики для всех категорий
 
     for transaction in transactions:
         description = transaction.get("description", "")
