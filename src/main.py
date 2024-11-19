@@ -125,26 +125,34 @@ def display_transactions(filtered_transactions, is_json=True):
         from_account_raw = transaction.get("from", "")
         to_account_raw = transaction.get("to", "")
 
-        from_account_number = extract_number(from_account_raw)
-        to_account_number = extract_number(to_account_raw)
+        # Обработка пустого поля 'from'
+        if not from_account_raw or not isinstance(from_account_raw, str):
+            to_account_number = extract_number(to_account_raw)
+            masked_to_account = get_mask_account(to_account_number) if to_account_number else ""
+            print(f"{formatted_date} {description}")
+            print(f"Счет {masked_to_account}")
+            print(f"Сумма: {amount} {currency}\n")
+        else:
+            from_account_number = extract_number(from_account_raw)
+            to_account_number = extract_number(to_account_raw)
 
-        masked_from_account = (
-            get_mask_card_number(from_account_number)
-            if len(from_account_number) == 16
-            else get_mask_account(from_account_number)
-        )
-        masked_to_account = (
-            get_mask_card_number(to_account_number)
-            if len(to_account_number) == 16
-            else get_mask_account(to_account_number)
-        )
+            masked_from_account = (
+                get_mask_card_number(from_account_number)
+                if len(from_account_number) == 16
+                else get_mask_account(from_account_number)
+            )
+            masked_to_account = (
+                get_mask_card_number(to_account_number)
+                if len(to_account_number) == 16
+                else get_mask_account(to_account_number)
+            )
 
-        from_display_name = f"{from_account_raw.split()[0]} {masked_from_account} -> " if from_account_raw else ""
-        to_display_name = f"{to_account_raw.split()[0]} {masked_to_account}" if to_account_raw else ""
+            from_display_name = f"{from_account_raw.split()[0]} {masked_from_account} -> " if from_account_raw else ""
+            to_display_name = f"{to_account_raw.split()[0]} {masked_to_account}" if to_account_raw else ""
 
-        print(f"{formatted_date} {description}")
-        print(f"{from_display_name}{to_display_name}")
-        print(f"Сумма: {amount} {currency}\n")
+            print(f"{formatted_date} {description}")
+            print(f"{from_display_name}{to_display_name}")
+            print(f"Сумма: {amount} {currency}\n")
 
 
 def main():
